@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class Favorite: BaseEntity
+    public class User: BaseEntity
     {
-        public DateTime AddingTime { get; set; }
-        public int AnnouncementID { get; set; }
-        public int UserID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }

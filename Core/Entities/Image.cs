@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    class Image
+    public class Image: BaseEntity
     {
+        public string Url { get; set; }
+        public bool IsMain { get; set; }
+        public int ObjectDescriptionID { get; set; }
     }
 }
