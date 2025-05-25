@@ -15,7 +15,14 @@ namespace HomeSeeker.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var properties = new List<HomeModel>
+            {
+                new HomeModel { Id = 1, Title = "Уютная квартира в центре", City = "Киев", Type = "Квартира", Price = 50000, ImageUrl = "/images/flat1.jpg" },
+                new HomeModel { Id = 2, Title = "Просторный дом с садом", City = "Львов", Type = "Дом", Price = 120000, ImageUrl = "/images/house1.jpg" }
+            };
+
+            return View(properties);
+            //return View();
         }
 
         public IActionResult Privacy()

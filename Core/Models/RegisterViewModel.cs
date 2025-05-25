@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models
 {
@@ -22,6 +17,6 @@ namespace Core.Models
         [Required]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Password is not confirmed")]
-        public string PasswordConfirm { get; set; }
+        public string ConfirmPassword { get; set; }
     }
 }

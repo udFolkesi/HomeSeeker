@@ -1,36 +1,49 @@
 ﻿using Core.Entities;
 using DAL.Repositories.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
 {
     public class UserRepository : IBaseRepository<User>
     {
-        public Task<User> Create(User entity)
+        private HomeSeekerDbContext _dbContext;
+        public UserRepository(HomeSeekerDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<bool> Create(User entity)
+        {
+            await _dbContext.Users.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public Task<bool> Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<User> Delete(int id)
+        public async Task<ICollection<User>> GetAll()
         {
-            throw new NotImplementedException();
+            var users = _dbContext.Users
+                .Include(u => u.Profile)
+                .Include(u => u.Profile.Favorites)
+                .Include(u => u.Profile.Announcements)
+                .Include(u => u.Profile.SenderMessages)
+                .Include(u => u.Profile.ReceiverMessages)
+                .ToListAsync();
+            return await users;
         }
 
-        public Task<IEnumerable<User>> GetAll()
+        public async Task<User> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Users
+                .Include(u => u.Profile)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public Task<User> GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> Update(User entity)
+        public Task<bool> Update(User entity)
         {
             throw new NotImplementedException();
         }

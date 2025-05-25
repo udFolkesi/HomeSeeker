@@ -8,10 +8,10 @@ namespace DAL.Repositories.Abstractions
 {
     public interface IBaseRepository<T>
     {
-        Task<IEnumerable<T>> GetAll();
+        Task<ICollection<T>> GetAll();
         Task<T> GetById(int id);
-        Task<T> Create(T entity);
-        Task<T> Update(T entity);
-        Task<T> Delete(int id);
+        Task<bool> Create(T entity);
+        Task<bool> Update(T entity);
+        Task<bool> Delete(int id);
     }
 }

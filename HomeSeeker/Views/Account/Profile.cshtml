@@ -1,0 +1,100 @@
+﻿@model ProfileViewModel
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <img src="~/images/default-avatar.png" class="rounded-circle mb-3" width="100" alt="User avatar">
+                    <h5>@Model.Data.Profile.FirstName @Model.Data.Profile.LastName</h5>
+                    <small class="text-muted">ID: @Model.Data.Id</small>
+                </div>
+                <ul class="list-group list-group-flush" id="menu-tabs">
+                    <button class="list-group-item list-group-item-action active" data-target="profile-section">Profile</button>
+                    <button class="list-group-item list-group-item-action" data-target="favorites-section">Favorites</button>
+                    <button class="list-group-item list-group-item-action" data-target="messages-section">Messages</button>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Profile Section -->
+            <div id="profile-section" class="section-content">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">Personal Information</div>
+                    <div class="card-body">
+                        <p><strong>First Name:</strong> @Model.Data.Profile.FirstName</p>
+                        <p><strong>Last Name:</strong> @Model.Data.Profile.LastName</p>
+                        <p><strong>Email:</strong> @Model.Data.Email</p>
+                        <p><strong>Phone:</strong> @Model.Data.Profile.PhoneNumber</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorites Section -->
+            <div id="favorites-section" class="section-content d-none">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">Saved Properties</div>
+                    <div class="card-body">
+                        @if (Model.Data.Profile.Favorites != null && Model.Data.Profile.Favorites.Any())
+                        {
+                            <div class="list-group">
+                                @foreach (var property in Model.Data.Profile.Favorites)
+                                {
+@*                                     <a href="/Property/Details/@property.Id" class="list-group-item list-group-item-action">
+                                        <h5 class="mb-1">@property.Title</h5>
+                                        <small class="text-muted">@property.Location</small>
+                                    </a> *@
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No saved properties yet.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Section -->
+            <div id="messages-section" class="section-content d-none">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">Messages</div>
+                    <div class="card-body">
+                        <p class="text-muted">This section will display user messages or contact requests.</p>
+                        <div class="alert alert-secondary">
+                            <strong>From:</strong> Agent Smith<br />
+                            <strong>Message:</strong> Hello! I noticed you're interested in the property on 5th Ave.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('#menu-tabs button').forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Удалить активный класс у всех кнопок
+                document.querySelectorAll('#menu-tabs button').forEach(b => b.classList.remove('active'));
+
+                // Добавить активный класс текущей кнопке
+                this.classList.add('active');
+
+                // Скрыть все секции
+                document.querySelectorAll('.section-content').forEach(section => section.classList.add('d-none'));
+
+                // Показать выбранную секцию
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.remove('d-none');
+            });
+        });
+    </script>
+}

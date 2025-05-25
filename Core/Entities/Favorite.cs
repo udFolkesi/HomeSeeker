@@ -11,6 +11,9 @@ namespace Core.Entities
     {
         public DateTime AddingTime { get; set; }
         public int AnnouncementID { get; set; }
-        public int UserID { get; set; }
+        public int ProfileID { get; set; }
+
+        public Profile Profile { get; set; }
+        public Announcement Announcement { get; set; }
     }
 }

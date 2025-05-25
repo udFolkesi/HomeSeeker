@@ -12,6 +12,7 @@ namespace Core.Entities
         public string Email { get; set; }
         [Required(ErrorMessage = "Password must have at least 6 character, up to 30")]
         public string PasswordHash { get; set; }
+
         public Profile Profile { get; set; }
     }
 }
