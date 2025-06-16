@@ -1,45 +1,43 @@
-﻿@model Core.Entities.Announcement
+﻿@using Core.Entities
+@model Core.Entities.Announcement
 
 @{
     ViewData["Title"] = Model.Id == 0 ? "Create Listing" : "Edit Listing";
 }
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <div class="container mt-5">
     <h1 class="mb-4">@ViewData["Title"]</h1>
 
-    <form asp-action="Save" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+    <form asp-action="AddOrEdit" enctype="multipart/form-data" method="post" id="listingForm" class="needs-validation" novalidate>
         <input type="hidden" asp-for="Id" />
-
-        <div class="mb-3">
-@*             <label asp-for="Title" class="form-label">Title</label>
-            <input asp-for="Title" class="form-control" required /> *@
-            <div class="invalid-feedback">
-                Please enter a title.
-            </div>
-        </div>
+        <input type="hidden" id="LatInput" name="Description.Latitude" />
+        <input type="hidden" id="LngInput" name="Description.Longitude" />
 
         <div class="mb-3">
             <label asp-for="@Model.Description.Details" class="form-label">Description</label>
             <textarea asp-for="@Model.Description.Details" class="form-control" rows="5" required></textarea>
-            <div class="invalid-feedback">
-                Please enter a description.
-            </div>
+            <div class="invalid-feedback">Please enter a description.</div>
         </div>
 
         <div class="mb-3">
-            <label asp-for="@Model.Description.Price" class="form-label">Price ($)</label>
-            <input asp-for="@Model.Description.Price" type="number" step="0.01" class="form-control" required />
-            <div class="invalid-feedback">
-                Please provide a valid price.
-            </div>
+            <label class="form-label">Price: <span id="priceOutput">@Model.Description.Price</span> $</label>
+            <input asp-for="@Model.Description.Price" type="range" class="form-range" min="0" max="1000000" step="1000"
+                   id="priceSlider" value="@Model.Description.Price" required />
+            <input type="hidden" asp-for="@Model.Description.Price" id="priceHidden" />
         </div>
 
         <div class="mb-3">
             <label asp-for="@Model.Description.Address" class="form-label">Address</label>
-            <input asp-for="@Model.Description.Address" class="form-control" required />
-            <div class="invalid-feedback">
-                Please enter an address.
-            </div>
+            <input asp-for="@Model.Description.Address" class="form-control" id="addressInput" required />
+            <div class="invalid-feedback">Please enter an address.</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Pick location on map</label>
+            <div id="map" style="height: 300px; border: 1px solid #ccc;"></div>
         </div>
 
         <div class="mb-3">
@@ -51,18 +49,29 @@
                 <option>Commercial</option>
                 <option>Land</option>
             </select>
-            <div class="invalid-feedback">
-                Please select a property type.
-            </div>
+            <div class="invalid-feedback">Please select a property type.</div>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Images" class="form-label">Upload Images</label>
-            <input asp-for="Images" type="file" class="form-control" multiple accept="image/*" />
-            <div class="form-text">
-                You can upload multiple images.
-            </div>
+            <label asp-for="Category" class="form-label">Category</label>
+            <select asp-for="Category" class="form-select" required>
+                <option value="">Select a category</option>
+                @foreach (var category in ViewBag.Categories as List<Category>)
+                {
+                    <option value="@category.Name">@category.Name</option>
+                }
+            </select>
+            <div class="invalid-feedback">Please select a category.</div>
         </div>
+
+        <div class="mb-3">
+            <label asp-for="@Model.ImageFiles" class="form-label">Upload Images</label>
+            <input asp-for="@Model.ImageFiles" type="file" class="form-control" multiple accept="image/*" id="imageUpload" />
+            <div class="form-text">You can upload multiple images.</div>
+            <div class="row mt-2" id="imagePreview"></div>
+        </div>
+
+
 
         <button type="submit" class="btn btn-primary">
             @(Model.Id == 0 ? "Create Listing" : "Update Listing")
@@ -72,20 +81,61 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
+        // Preview images
+        document.getElementById("imageUpload").addEventListener("change", function (event) {
+            const preview = document.getElementById("imagePreview");
+            preview.innerHTML = "";
+            Array.from(event.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.className = "img-thumbnail m-1";
+                    img.style.maxWidth = "150px";
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // Price slider
+        const slider = document.getElementById("priceSlider");
+        const output = document.getElementById("priceOutput");
+        const hiddenPrice = document.getElementById("priceHidden");
+        slider.addEventListener("input", function () {
+            output.innerText = this.value;
+            hiddenPrice.value = this.value;
+        });
+        hiddenPrice.value = slider.value;
+
+        // Map setup
+        const map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        let marker;
+        map.on('click', function (e) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker(e.latlng).addTo(map);
+            document.getElementById("LatInput").value = e.latlng.lat;
+            document.getElementById("LngInput").value = e.latlng.lng;
+        });
+
+        // Bootstrap validation
         (function () {
-            'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault()
-                            event.stopPropagation()
-                        }
-                        form.classList.add('was-validated')
-                    }, false)
-                })
-        })()
+            'use strict';
+            var form = document.getElementById('listingForm');
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        })();
     </script>
 }
+

@@ -1,0 +1,120 @@
+﻿@model Core.Entities.Announcement
+
+@{
+    ViewData["Title"] = "Listing Details";
+    var currentUserId = ViewBag.CurrentUserId;
+    bool isOwner = (currentUserId == Model.ProfileID);
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<div class="container mt-5">
+    <h2 class="mb-4">🏠 @Model.PropertyType Listing</h2>
+
+    <div class="card shadow-lg mb-4">
+        <div class="row g-0">
+            <div class="col-md-6">
+                <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @for (int i = 0; i < Model.Images.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="@Model.Images.ToList()[i].Url" class="d-block w-100" alt="Image @i" style="object-fit: cover; height: 400px;" />
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6 p-4">
+                <h4 class="card-title">💰 ₴@Model.Description.Price</h4>
+                <p><strong>Address:</strong> @Model.Description.Address</p>
+                <p><strong>Description:</strong> @Model.Description.Details</p>
+
+                @if (isOwner)
+                {
+                    <div class="alert alert-info">You are the owner of this listing.</div>
+
+                    <div class="mb-3">
+                        <strong>📞 Contact Info:</strong>
+                        <p>Email: @Model.Profile.User.Email</p>
+                        <p>Phone: @Model.Profile.PhoneNumber</p>
+                    </div>
+
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Edit Listing</a>
+                }
+                else
+                {
+                    <div class="accordion" id="contactAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingContact">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContact">
+                                    📇 Show Contact Info
+                                </button>
+                            </h2>
+                            <div id="collapseContact" class="accordion-collapse collapse" data-bs-parent="#contactAccordion">
+                                <div class="accordion-body">
+                                    <p>Email: @Model.Profile.User.Email</p>
+                                    <p>Phone: @Model.Profile.PhoneNumber</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button class="btn btn-outline-primary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#messageForm">✉️ Write Message</button>
+                        <div class="collapse" id="messageForm">
+                            <form asp-action="SendMessage" method="post" class="mt-3">
+                                <input type="hidden" name="announcementId" value="@Model.Id" />
+                                <div class="mb-3">
+                                    <textarea name="message" class="form-control" rows="3" placeholder="Your message to the owner..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">Send</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Map Section *@
+    @if (2 > 0)
+    {
+        <div class="card shadow-sm mb-5">
+            <div class="card-body">
+                <h5 class="card-title">📍 Location</h5>
+                <div id="map" style="height: 300px;"></div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Map
+        const lat = parseFloat(@Model.Description.Latitude.GetValueOrDefault(0));
+        const lng = parseFloat(@Model.Description.Longitude.GetValueOrDefault(0));
+
+        if (lat && lng) {
+            const map = L.map('map').setView([lat, lng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("Listing Location")
+                .openPopup();
+        }
+    </script>
+}

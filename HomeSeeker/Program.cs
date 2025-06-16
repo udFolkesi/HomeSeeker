@@ -7,15 +7,12 @@ using DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using NuGet.Protocol.Core.Types;
-using System;
 
 namespace HomeSeeker
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +28,10 @@ namespace HomeSeeker
                 options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
             });
 
-            //builder.Services.AddScoped<IBaseRepository<Course>, CourseRepository>();
+            builder.Services.AddScoped<IBaseRepository<Announcement>, AnnouncementRepository>();
             builder.Services.AddScoped<IBaseRepository<User>, UserRepository>();
-            //builder.Services.AddScoped<IService<Course>, CourseService>();
+            builder.Services.AddScoped<IBaseRepository<Image>, ImageRepository>();
+            builder.Services.AddScoped<IService<Announcement>, AnnouncementService>();
             builder.Services.AddScoped<IService<User>, UserService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
 
@@ -57,6 +55,13 @@ namespace HomeSeeker
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                await SeedManager.Seed(services);
+            }
 
             app.Run();
         }

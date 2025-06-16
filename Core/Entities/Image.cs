@@ -11,6 +11,8 @@ namespace Core.Entities
     {
         public string Url { get; set; }
         public bool IsMain { get; set; }
-        public int ObjectDescriptionID { get; set; }
+
+        public int AnnouncementId { get; set; }
+        public Announcement Announcement { get; set; }
     }
 }

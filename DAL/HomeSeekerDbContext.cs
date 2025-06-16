@@ -15,6 +15,7 @@ namespace DAL
         public DbSet<Category> Categories { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<ObjectDescription> ObjectDescriptions { get; set; }
 
@@ -33,7 +34,7 @@ namespace DAL
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Announcement>()
-                .HasOne<Profile>()
+                .HasOne(a => a.Profile)
                 .WithMany(p => p.Announcements)
                 .HasForeignKey(a => a.ProfileID)
                 .OnDelete(DeleteBehavior.Restrict);

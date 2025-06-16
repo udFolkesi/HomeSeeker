@@ -18,7 +18,10 @@ namespace Core.Entities
         public double SquareMeters { get; set; }
         public string Address { get; set; } = null!;
         public int Rooms { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
 
-        public Profile Profile { get; set; } = null!;
+        /*        [ForeignKey("ProfileID")]
+                public Profile Profile { get; set; } = null!;*/
     }
 }

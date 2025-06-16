@@ -1,5 +1,71 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model AnnouncementModel
+
+<div class="container my-5">
+    <h2>Search Results</h2>
+
+    <!-- Search panel -->
+    <form method="get" asp-controller="Announcement" asp-action="ViewAll" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Search..." />
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="city" value="@Model.City" class="form-control" placeholder="City" />
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="priceFrom" value="@Model.PriceFrom" class="form-control" placeholder="Price from" />
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="priceTo" value="@Model.PriceTo" class="form-control" placeholder="Price to" />
+            </div>
+            <div class="col-md-2">
+                <select name="sort" class="form-control">
+                    <option value="relevance" selected="@(Model.Sort == "relevance")">For Relevance</option>
+                    <option value="price_asc" selected="@(Model.Sort == "price_asc")">Price ↑</option>
+                    <option value="price_desc" selected="@(Model.Sort == "price_desc")">Price ↓</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Go</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Search Result -->
+    <div class="row">
+        @if (!Model.Ads.Any())
+        {
+            <p>No results found.</p>
+        }
+        else
+        {
+            foreach (var ad in Model.Ads)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card position-relative">
+                        <img src="@(ad.MainImage ?? "default.png")" class="card-img-top" style="height:200px; object-fit:cover;" />
+
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <form method="post" asp-controller="Ads" asp-action="AddToFavorites" asp-route-adId="@ad.Id">
+                                <button type="submit" class="btn btn-link p-0 border-0">
+                                    <i class="bi @(Model.FavoriteAdIds.Contains(ad.Id) ? "bi-heart-fill" : "bi-heart") fs-4 text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="card-body">
+                            <h5>@ad.Title</h5>
+                            <p>@ad.City • @ad.Category</p>
+                            <p class="text-primary">₴@ad.Price.ToString("N0")</p>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-clock"></i> @ad.TimeToCenter min. to center
+                            </p>
+                            <a asp-action="Details" asp-route-id="@ad.Id" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        }
+    </div>
+</div>

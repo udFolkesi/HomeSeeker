@@ -24,13 +24,13 @@ namespace BLL.Services
             if (await _repository.Create(user))
             {
                 //response.StatusCode = StatusCode.Ok;
-                response.Message = "Пользователь добавлен";
+                response.Message = "User added";
                 response.Data = true;
             }
             else
             {
                 //response.StatusCode = StatusCode.Error;
-                response.Message = "Пользователь не добавлен";
+                response.Message = "User not added";
                 response.Data = false;
             }
 
@@ -44,13 +44,13 @@ namespace BLL.Services
             if (await _repository.Delete(id))
             {
                 //response.StatusCode = StatusCode.Ok;
-                response.Message = "Пользователь удален";
+                response.Message = "User deleted";
                 response.Data = true;
             }
             else
             {
                 //response.StatusCode = StatusCode.Error;
-                response.Message = "Пользователь не удален";
+                response.Message = "User not found";
                 response.Data = false;
             }
 
@@ -66,13 +66,13 @@ namespace BLL.Services
             if (user is not null)
             {
                 //response.StatusCode = StatusCode.Ok;
-                response.Message = "Пользователь найден";
+                response.Message = "User found";
                 response.Data = user;
             }
             else
             {
                 //response.StatusCode = StatusCode.Error;
-                response.Message = "Пользователь не найден";
+                response.Message = "User not found";
                 response.Data = null;
             }
 
@@ -88,13 +88,13 @@ namespace BLL.Services
             if (users.Count != 0)
             {
                 //response.StatusCode = StatusCode.Ok;
-                response.Message = "Пользователи найдены";
+                response.Message = "Users found";
                 response.Data = users;
             }
             else
             {
                 //response.StatusCode = StatusCode.Error;
-                response.Message = "Пользователи не найдены";
+                response.Message = "Users not found;
                 response.Data = users;
             }
 

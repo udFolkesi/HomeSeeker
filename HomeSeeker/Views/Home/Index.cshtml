@@ -1,4 +1,4 @@
-﻿@model List<HomeModel>
+﻿@* @model List<HomeModel>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -7,7 +7,7 @@
 @* <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div> *@
+</div> 
 
 <div class="container my-4">
     <h1 class="mb-4 text-center">Поиск жилья</h1>
@@ -62,3 +62,279 @@
         }
     </div>
 </div>
+ *@
+
+@model HomeModel
+
+<!-- Hero Section -->
+<div class="slider_area">
+    <div class="single_slider d-flex align-items-center slider_bg_1">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7 col-md-6">
+                    <div class="slider_text">
+                        <h3 class="wow fadeInLeft" data-wow-duration="1s" data-wow-delay=".3s">Find Your Perfect Home</h3>
+                        <p class="wow fadeInLeft" data-wow-duration="1s" data-wow-delay=".4s">Buy and sell property with ease</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ilstration_img wow fadeInRight d-none d-lg-block text-right" data-wow-duration="1s" data-wow-delay=".2s">
+        <img src="img/banner/real_estate.png" alt="Real Estate">
+    </div>
+</div>
+
+<!-- Search Filter -->
+<div class="container my-5">
+    <form method="get" asp-controller="Announcement" asp-action="ViewAll" autocomplete="off">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search by title...">
+            </div>
+            <div class="col-md-3 position-relative">
+                <input type="text" id="cityInput" name="city" class="form-control" placeholder="Address">
+                <ul id="citySuggestions" class="list-group position-absolute w-100" style="z-index: 1000;"></ul>
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-control">
+                    <option value="">All Categories</option>
+                    <option value="Apartment">Apartments</option>
+                    <option value="House">Houses</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Land">Land</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-block">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Categories -->
+<div class="popular_catagory_area py-3 bg-light">
+    <div class="container">
+        <div class="section_title mb-4">
+            <h3 class="mb-4">Popular Categories</h3>
+        </div>
+        <div class="row g-2">
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="List" asp-controller="Ad" asp-route-category="Apartment" class="text-decoration-none text-dark">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body p-2">
+                            <i class="bi bi-building fs-4 mb-2 text-primary"></i>
+                            <h5 class="card-title fs-6 mb-0">Apartments</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="List" asp-controller="Ad" asp-route-category="House" class="text-decoration-none text-dark">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body p-2">
+                            <i class="bi bi-house-door fs-4 mb-2 text-success"></i>
+                            <h5 class="card-title fs-6 mb-0">Houses</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="List" asp-controller="Ad" asp-route-category="Commercial" class="text-decoration-none text-dark">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body p-2">
+                            <i class="bi bi-briefcase fs-4 mb-2 text-warning"></i>
+                            <h5 class="card-title fs-6 mb-0">Commercial</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="List" asp-controller="Ad" asp-route-category="Land" class="text-decoration-none text-dark">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body p-2">
+                            <i class="bi bi-tree fs-4 mb-2 text-danger"></i>
+                            <h5 class="card-title fs-6 mb-0">Land</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Ads -->
+@if (Model.PopularAds?.Any() == true)
+{
+    <div class="container my-5">
+        <h3 class="mb-4">Popular Listings</h3>
+        <div class="row" id="popularAdsContainer">
+            @{
+                int visibleCount = 6;
+                int index = 0;
+            }
+            @foreach (var ad in Model.PopularAds)
+            {
+                var isHidden = index >= visibleCount ? "d-none" : "";
+                <div class="col-md-4 mb-4 popular-ad @isHidden">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@(ad.MainImage ?? "default.png")" class="card-img-top" style="height:200px; object-fit:cover;" alt="Ad Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@ad.Title</h5>
+                            <p class="card-text">@ad.City • @ad.Category</p>
+                            <p class="card-text font-weight-bold text-primary">₴ @ad.Price.ToString("N0")</p>
+                            <a asp-controller="Announcement" asp-action="View" asp-route-id="@ad.Id" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <form method="post" asp-controller="Ads" asp-action="AddToFavorites" asp-route-adId="@ad.Id">
+                                <button type="submit" class="btn btn-link p-0 border-0">
+                                    <i class="bi bi-heart fs-4 text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                index++;
+            }
+        </div>
+        @if (Model.PopularAds.Count > visibleCount)
+        {
+            <div class="text-center mt-3">
+                <button class="btn btn-secondary" id="showMorePopularAdsBtn">Show more</button>
+            </div>
+        }
+    </div>
+}
+
+<!-- Recommended Ads -->
+@if (Model.RecommendedAds?.Any() == true)
+{
+    <div class="container my-5">
+        <h3 class="mb-4">Recommended For You</h3>
+        <div class="row" id="recommendedAdsContainer">
+            @{
+                int visibleCount = 6;
+                int index = 0;
+            }
+            @foreach (var ad in Model.RecommendedAds)
+            {
+                var isHidden = index >= visibleCount ? "d-none" : "";
+                <div class="col-md-4 mb-4 recommended-ad @isHidden">
+                    <div class="card h-100 shadow-sm">
+                        @* <img src="~/uploads/@(ad.MainImage ?? "default.png")" class="card-img-top" style="height:200px; object-fit:cover;" alt="Ad Image"> *@
+                        <img src="@(ad.MainImage ?? "default.png")" class="card-img-top" style="height:200px; object-fit:cover;" alt="Ad Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@ad.Title</h5>
+                            <p class="card-text">@ad.City • @ad.Category</p>
+                            <p class="card-text font-weight-bold text-primary">₴ @ad.Price.ToString("N0")</p>
+                            <a asp-controller="Ad" asp-action="Details" asp-route-id="@ad.Id" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                index++;
+            }
+        </div>
+        @if (Model.RecommendedAds.Count > visibleCount)
+        {
+            <div class="text-center mt-3">
+                <button class="btn btn-secondary" id="showMoreRecommendedAdsBtn">Show more</button>
+            </div>
+        }
+    </div>
+}
+
+<!-- Call to Action -->
+<div class="job_searcing_wrap overlay">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5 offset-lg-1 col-md-6">
+                <div class="searching_text">
+                    <h3>Looking for a property?</h3>
+                    <p>Hundreds of listings are waiting for you</p>
+                    <a asp-controller="Ad" asp-action="List" class="boxed-btn3">Browse Listings</a>
+                </div>
+            </div>
+            <div class="col-lg-5 offset-lg-1 col-md-6">
+                <div class="searching_text">
+                    <h3>Want to sell your property?</h3>
+                    <p>Post your ad now and find buyers fast</p>
+                    <a asp-controller="Ad" asp-action="Create" class="boxed-btn3">Post an Ad</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const showMoreBtn = document.getElementById("showMorePopularAdsBtn");
+        if (showMoreBtn) {
+            showMoreBtn.addEventListener("click", function () {
+                const hiddenAds = document.querySelectorAll(".popular-ad.d-none");
+                hiddenAds.forEach(ad => ad.classList.remove("d-none"));
+                showMoreBtn.style.display = "none";
+            });
+        }
+    });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        // Popular Ads: Show More
+        const showMorePopular = document.getElementById("showMorePopularAdsBtn");
+        if (showMorePopular) {
+            showMorePopular.addEventListener("click", function () {
+                document.querySelectorAll(".popular-ad.d-none").forEach(el => el.classList.remove("d-none"));
+                showMorePopular.style.display = "none";
+            });
+        }
+
+        // Recommended Ads: Show More
+        const showMoreRecommended = document.getElementById("showMoreRecommendedAdsBtn");
+        if (showMoreRecommended) {
+            showMoreRecommended.addEventListener("click", function () {
+                document.querySelectorAll(".recommended-ad.d-none").forEach(el => el.classList.remove("d-none"));
+                showMoreRecommended.style.display = "none";
+            });
+        }
+    });
+
+    const input = document.getElementById('cityInput');
+    const suggestionsList = document.getElementById('citySuggestions');
+
+    input.addEventListener('input', async () => {
+        const query = input.value;
+        if (query.length < 3) {
+            suggestionsList.innerHTML = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`, {
+                headers: {
+                    'Accept-Language': 'en',
+                    'User-Agent': 'YourAppName/1.0 (your@email.com)'
+                }
+            });
+            const results = await response.json();
+
+            suggestionsList.innerHTML = '';
+            results.slice(0, 5).forEach(place => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item', 'list-group-item-action');
+                li.textContent = place.display_name;
+                li.onclick = () => {
+                    input.value = place.display_name;
+                    suggestionsList.innerHTML = '';
+                };
+                suggestionsList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('Ошибка получения адресов:', error);
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('cityInput').contains(e.target)) {
+            suggestionsList.innerHTML = '';
+        }
+    });
+</script>

@@ -49,6 +49,35 @@ namespace HomeSeeker.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public async Task<IActionResult> ViewAll(string ids = null)
+        {
+            if (!HttpContext.User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var response = await _userService.GetAllAsync();
+            var users = response.Data;
+
+            if (ids is not null)
+            {
+                if (ids != "empty")
+                {
+                    var idsList = ids.Split(";");
+                    var sortedUsers = users.Where(c => idsList.Contains(c.Id.ToString())).ToList();
+                    return View(new AccountsModel() { Data = sortedUsers });
+                }
+                else
+                {
+                    return View(new AccountsModel() { Data = new List<User>() });
+                }
+            }
+
+            _logger.LogInformation("Get All Users -> Ok");
+
+            return View(new AccountsModel() { Data = users });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {

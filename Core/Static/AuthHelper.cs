@@ -7,21 +7,21 @@ namespace Core.Static
     {
         public static ClaimsIdentity Authenticate(User user)
         {
-            var coursesIds = new List<int>();
-            var coursesNames = new List<string>();
+            var announcementsIds = new List<int>();
+            //var coursesNames = new List<string>();
 
-/*            foreach (var course in user.Profile.Courses)
+            foreach (var announcement in user.Profile.Announcements)
             {
-                coursesIds.Add(course.Id);
-                coursesNames.Add(course.Name);
-            }*/
+                announcementsIds.Add(announcement.Id);
+                //coursesNames.Add(course.Name);
+            }
 
             var claims = new List<Claim>
             {
                 new Claim("Email", user.Email),
                 new Claim("Role", user.Profile.Role.ToString()),
                 new Claim("Id", user.Id.ToString()),
-                //new Claim("CoursesIds", string.Join(',', coursesIds)),
+                new Claim("AnnouncementsIds", string.Join(',', announcementsIds)),
                 //new Claim("CoursesNames", string.Join(',', coursesNames))
             };
 
